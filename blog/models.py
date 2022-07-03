@@ -1,6 +1,9 @@
 """blog/models"""
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django.db.models import Count
 
 # Create your models here.
 class Comment(models.Model):
@@ -47,9 +50,58 @@ class Topic(models.Model):
     def __str__(self):
         return self.name
 
+class PostManager(models.Manager):
+    """
+    Post manager
+    """
+    def get_queryset(self):
+        """
+        queryset - exclude deleted
+        """
+        queryset = super().get_queryset() #Get the initial get_queryset
+        return queryset.exclude(deleted=True) # Exclude deleted records
+
+class PostQuerySet(models.QuerySet):
+    """
+    PostQuerySet
+    """
+    def published(self):
+        """
+        PUBLISHED
+        """
+        return self.filter(status=self.model.PUBLISHED)
+
+    def drafts(self):
+        """
+        DRAFT
+        """
+        return self.filter(status=self.model.DRAFT)
+
+    def get_authors(self):
+        """
+        Get Authors
+        """
+        user = get_user_model()
+        return user.objects.filter(blog_posts__in=self).distinct()
+
+    def get_topics(self):
+        """
+        Get Topics
+        """
+        topics = Topic.objects.annotate(total_posts=Count('blog_posts'))
+        return  topics.order_by('-total_posts').values('name','total_posts')
+
 class Post(models.Model):
-    """Blog Post"""
-    #Create choices for Status
+    """
+    Represents a blog post
+    """
+    def publish(self):
+        """Publish this post"""
+        self.status = self.PUBLISHED
+        self.published = timezone.now() # The current datetime with TIME_ZONE
+
+    objects = PostQuerySet.as_manager()
+    #objects = PostManager()
     DRAFT = 'draft'
     PUBLISHED = 'published'
     STATUS_CHOICES = [

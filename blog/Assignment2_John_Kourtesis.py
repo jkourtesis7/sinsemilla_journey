@@ -52,21 +52,31 @@ def question_6_return_the_post_with_the_most_comments():
     the database. Do not concern yourself with approval status;
     return the object which has generated the most activity.
     """
-
+    # I am stumped on this one.
+    # Hope you post solutions.
+    # I really want to make sure I understand how this works
 
 def question_7_create_a_comment(post):
     """
     Create and return a comment for the post object provided.
     """
+    comment = Comment.objects.create(post=post, name='john', email='john@john.com', text='good times')
+
+    return comment
 
 
 def question_8_set_approved_to_false(comment):
     """
     Update the comment record provided and set approved=False
     """
+    from blog.models import Comment
+    comment.approved = False
+    comment.save
 
 
 def question_9_delete_post_and_all_related_comments(post):
     """
     Delete the post object provided, and all related comments.
     """
+    Comment.objects.filter(post=post).delete()
+    post.delete()

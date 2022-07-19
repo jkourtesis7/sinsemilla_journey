@@ -1,0 +1,21 @@
+{# blog/templates/blog/topic_detail.html #}
+{% extends "blog/base.html" %}
+
+{% block page_title %}Topic Detail{% endblock %}
+
+
+{% block main %}
+<h1>{{ topic.name }}</h1>
+<p>{{ topic.total_posts }} posts</P>
+
+{% for post in topic %}
+  <article class="post-preview">
+    <h2>{{ post.title }}</h2>
+    <time>{{ post.published }}</time>
+    <section class="teaser">
+      {{ post.content|truncatewords:20 }}
+    <p><a href="{{ post.get_absolute_url }}">Read more &rarr; </a></p>
+    </section>
+  </article>
+{% endfor %}
+{% endblock %}

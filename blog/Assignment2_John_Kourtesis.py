@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Count
 from django.contrib.auth.models import User
 from blog.models import Comment, Post
 
@@ -13,7 +13,7 @@ def question_1_return_active_users():
     Return the results of a query which returns a list of all
     active users in the database.
     """
-    return  User.objects.all()
+    return  User.objects.filter(is_active='t')
 
 def question_2_return_regular_users():
     """
@@ -52,9 +52,7 @@ def question_6_return_the_post_with_the_most_comments():
     the database. Do not concern yourself with approval status;
     return the object which has generated the most activity.
     """
-    # I am stumped on this one.
-    # Hope you post solutions.
-    # I really want to make sure I understand how this works
+    return Post.objects.annotate(num_comments=Count('comments')).order_by('-num_comments')[0]
 
 def question_7_create_a_comment(post):
     """
@@ -71,7 +69,7 @@ def question_8_set_approved_to_false(comment):
     """
     from blog.models import Comment
     comment.approved = False
-    comment.save
+    comment.save()
 
 
 def question_9_delete_post_and_all_related_comments(post):

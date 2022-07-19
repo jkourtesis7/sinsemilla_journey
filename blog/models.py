@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.db.models import Count
+from django.urls import reverse
 
 # Create your models here.
 class Comment(models.Model):
@@ -41,6 +42,15 @@ class Comment(models.Model):
 
 class Topic(models.Model):
     """Blog Topics"""
+    def get_absolute_url(self):
+
+        kwargs = {
+            'name': self.name,
+            'slug': self.slug
+        }
+        return reverse('topic-detail', kwargs=kwargs)
+
+
     name = models.CharField(
         max_length=50,
         unique=True
@@ -95,6 +105,19 @@ class Post(models.Model):
     """
     Represents a blog post
     """
+    def get_absolute_url(self):
+        if self.published:
+            kwargs = {
+                'year': self.published.year,
+                'month': self.published.month,
+                'day': self.published.day,
+                'slug': self.slug
+            }
+        else:
+            kwargs = {'pk': self.pk}
+
+        return reverse('post-detail', kwargs=kwargs)
+
     def publish(self):
         """Publish this post"""
         self.status = self.PUBLISHED

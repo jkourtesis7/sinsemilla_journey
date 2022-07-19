@@ -21,9 +21,12 @@
   <!-- Top navigation -->
   <nav id="top-nav">
     <ul>
-      <li><a href="#">Home</a></li>
-      <li><a href="#">About</a></li>
-      <li><a href="#">Posts</a></li>
+      <li><a href="{% url "home" %}">Home</a></li>
+      <li><a href="{% url "about" %}">About</a></li>
+      <li><a href="{% url "post-list" %}">Posts</a></li>
+      <li><a href="{% url "topic-list" %}">Topics</a></li>
+      <li><a href="{% url "topic-detail" %}">Topic-Detail</a></li>
+
       <li><a href="#">Contact</a></li>
     </ul>
   </nav>
@@ -50,7 +53,8 @@
   <!-- The footer -->
   <footer id="site-footer">
     <!-- Print copyright with the current year -->
-    Copyright &copy;{% now 'Y' %}
+    Copyright &copy; {% now 'Y' %} –
+    <a href="{% url "terms-and-conditions" %}">Terms & conditions</a>
   </footer>
 </body>
 </html>

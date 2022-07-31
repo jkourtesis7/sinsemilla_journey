@@ -6,7 +6,6 @@
 <head>
   <meta charset="utf-8">
   <title>Sinsemilla Journey – {% block page_title %}A Cannabis Cultivation Blog{% endblock %}</title>
-
 </head>
 
 <body>
@@ -17,7 +16,6 @@
      <img src="{% static "blog/logo.png" %}" alt="Logo">
   </header>
 
-
   <!-- Top navigation -->
   <nav id="top-nav">
     <ul>
@@ -25,8 +23,6 @@
       <li><a href="{% url "about" %}">About</a></li>
       <li><a href="{% url "post-list" %}">Posts</a></li>
       <li><a href="{% url "topic-list" %}">Topics</a></li>
-      <li><a href="{% url "topic-detail" %}">Topic-Detail</a></li>
-
       <li><a href="#">Contact</a></li>
     </ul>
   </nav>
@@ -39,14 +35,26 @@
     </div>
 
     <aside id="sidebar">
+
      <section id="topic-list">
        <h3>Popular Topics</h3>
        <ul>
-         {% for topic in topics %}
-           <li>{{ topic.name }}({{ topic.total_posts }})</li>
+         {% for topic in topics_info %}
+           <li><a href="{{ topic.get_absolute_url }}">{{ topic.name }} ({{ topic.blog_posts.count }})</a></li>
+         {% endfor %}
+       </ul>
+       <p><a href="{% url "topic-list" %}">   View All Topics</a></p>
+     </section>
+
+     <section id="author-list">
+       <h3>Authors</h3>
+       <ul>
+         {% for author in authors %}
+         <li>{{ author.get_full_name }}</li>
          {% endfor %}
        </ul>
      </section>
+
     </aside>
   </main>
 

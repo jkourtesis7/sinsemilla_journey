@@ -1,110 +1,112 @@
 """blog/models"""
-from django.conf import settings
+from django.conf import settings  # Imports Django's loaded settings
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from django.db.models import Count
 from django.urls import reverse
 
-# Create your models here.
-class Comment(models.Model):
-    """Blog Comments"""
-    post = models.ForeignKey(
-        'Post',
-        on_delete=models.PROTECT,
-        related_name='comments',
-        null=False,
-    )
-    name = models.CharField(
-        max_length=50,
-        null=False,
-        )
-    email = models.CharField(
-        max_length=255,
-        null=False,
-        )
-    text = models.TextField(
-        max_length=1000,
-        null=False,
-        )
-    approved = models.BooleanField(
-        default=True
-        )
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+class PostQuerySet(models.QuerySet):
+    """PostQuerySet"""
+    def published(self):
+        """PUBLISHED"""
+        return self.filter(status=self.model.PUBLISHED)
 
-    class Meta:
-        """Order comments by created"""
-        ordering = ['-created']
+    def drafts(self):
+        """DRAFT"""
+        return self.filter(status=self.model.DRAFT)
 
-    def __str__(self):
-        return f'{self.name} {self.updated}'
+    def get_authors(self):
+        """Get Authors"""
+        user = get_user_model()
+        return user.objects.filter(blog_posts__in=self).distinct()
 
 class Topic(models.Model):
     """Blog Topics"""
-    def get_absolute_url(self):
-
-        kwargs = {
-            'name': self.name,
-            'slug': self.slug
-        }
-        return reverse('topic-detail', kwargs=kwargs)
-
-
+# Table fields
     name = models.CharField(
         max_length=50,
         unique=True
     )
     slug = models.SlugField(unique=True)
-
+# Self
     def __str__(self):
         return self.name
-
-class PostManager(models.Manager):
-    """
-    Post manager
-    """
-    def get_queryset(self):
-        """
-        queryset - exclude deleted
-        """
-        queryset = super().get_queryset() #Get the initial get_queryset
-        return queryset.exclude(deleted=True) # Exclude deleted records
-
-class PostQuerySet(models.QuerySet):
-    """
-    PostQuerySet
-    """
-    def published(self):
-        """
-        PUBLISHED
-        """
-        return self.filter(status=self.model.PUBLISHED)
-
-    def drafts(self):
-        """
-        DRAFT
-        """
-        return self.filter(status=self.model.DRAFT)
-
-    def get_authors(self):
-        """
-        Get Authors
-        """
-        user = get_user_model()
-        return user.objects.filter(blog_posts__in=self).distinct()
-
-    def get_topics(self):
-        """
-        Get Topics
-        """
-        topics = Topic.objects.annotate(total_posts=Count('blog_posts'))
-        return  topics.order_by('-total_posts').values('name','total_posts')
+# Define URL
+    def get_absolute_url(self):
+        """get abolust url"""
+        return reverse('topic-detail', kwargs={'pk':self.pk})
+# Sort Order
+    class Meta:
+        ordering = ['name']
 
 class Post(models.Model):
     """
     Represents a blog post
     """
+# Status choices
+    DRAFT = 'draft'
+    PUBLISHED = 'published'
+    STATUS_CHOICES = [
+        (DRAFT, 'Draft'),
+        (PUBLISHED, 'Published')
+    ]
+
+#Table headings
+    title = models.CharField(
+        max_length=255,
+        null=False,
+        )
+    slug = models.SlugField(
+        null=False,
+        unique_for_date='published',
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='blog_posts',
+        null=False,
+    )
+    status = models.CharField(
+        max_length=10,
+        choices = STATUS_CHOICES,
+        null=False,
+        default=DRAFT,
+        help_text='Set to published to make this post publicly visible',
+    )
+    content = models.TextField()
+    published = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='The date and time this article was published',
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    topics = models.ManyToManyField(
+        Topic,
+        related_name='blog_posts'
+    )
+
+#objects = PostManager()
+    objects = PostQuerySet.as_manager()
+
+#Set sort order
+    class Meta:
+        """Order by created"""
+        ordering = ['-created']
+
+# Self Title
+    def __str__(self):
+        return self.title
+
+# Set current date time when published
+    def publish(self):
+        """Publish this post"""
+        self.status = self.PUBLISHED
+        self.published = timezone.now() # The current datetime with TIME_ZONE
+
+# Construct URL
     def get_absolute_url(self):
         if self.published:
             kwargs = {
@@ -118,59 +120,48 @@ class Post(models.Model):
 
         return reverse('post-detail', kwargs=kwargs)
 
-    def publish(self):
-        """Publish this post"""
-        self.status = self.PUBLISHED
-        self.published = timezone.now() # The current datetime with TIME_ZONE
-
-    objects = PostQuerySet.as_manager()
-    #objects = PostManager()
-    DRAFT = 'draft'
-    PUBLISHED = 'published'
-    STATUS_CHOICES = [
-        (DRAFT, 'Draft'),
-        (PUBLISHED, 'Published')
-    ]
-
-    #Table headings
-    title = models.CharField(
+# Create your models here.
+class Comment(models.Model):
+    """Blog Comments"""
+# Table fields
+    name = models.CharField(
+        max_length=50,
+        null=False,
+        )
+    email = models.CharField(
         max_length=255,
         null=False,
         )
-    content = models.TextField()
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+    post = models.ForeignKey(
+        'Post',
         on_delete=models.PROTECT,
-        related_name='blog_posts',
+        related_name='comments',
         null=False,
     )
+    text = models.TextField(
+        max_length=1000,
+        null=False,
+        )
+    approved = models.BooleanField(
+        default=True
+        )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    status = models.CharField(
-        max_length=10,
-        choices = STATUS_CHOICES,
-        null=False,
-        default=DRAFT,
-        help_text='Set to published to make this post publicly visible',
-    )
-    published = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text='The date and time this article was published',
-    )
-    slug = models.SlugField(
-        null=False,
-        unique_for_date='published',
-    )
-    topics = models.ManyToManyField(
-        Topic,
-        related_name='blog_posts'
-    )
 
-    #Set sort order
+# Sort Order
     class Meta:
-        """Order by created"""
+        """Order comments by created"""
         ordering = ['-created']
-
+# Define self
     def __str__(self):
-        return self.title
+        return f'{self.name} {self.updated}'
+
+#I think this is not needed
+"""
+class PostManager(models.Manager):
+    """"""Post manager""""""
+    def get_queryset(self):
+        """"""queryset - exclude deleted""""""
+        queryset = super().get_queryset() #Get the initial get_queryset
+        return queryset.exclude(deleted=True) # Exclude deleted records
+        """

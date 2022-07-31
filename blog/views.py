@@ -1,12 +1,16 @@
-""" blog/views.py"""
+from django.shortcuts import render
+from . import models
+from blog.models import Topic
+from django.db.models import Count
+from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic import ListView
 from django.views.generic import DetailView
-from django.shortcuts import render
-#from django.views import View
-from . import models
 
 
+def terms_and_conditions(request):
+    """Terms and Conditions"""
+    return render(request, 'blog/terms_and_conditions.html')
 
 class HomeView(TemplateView):
     """Home View"""
@@ -26,10 +30,6 @@ class AboutView(TemplateView):
     """About View"""
     template_name = 'blog/about.html'
 
-def terms_and_conditions(request):
-    """Terms and Conditions"""
-    return render(request, 'blog/terms_and_conditions.html')
-
 class PostListView(ListView):
     """Post List View"""
     model = models.Post
@@ -40,7 +40,17 @@ class TopicListView(ListView):
     """Topic List View"""
     model = models.Topic
     context_object_name = 'topics'
-    queryset = models.Post.objects.get_topics().order_by('name')
+    queryset = Topic.objects.annotate(blog_count = Count('blog_posts')).order_by('name')#.values('name','slug')
+
+class TopicDetailView(DetailView):
+    """Topic Detail view"""
+    model = models.Topic
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # queryset = models.Post.objects.filter(topics=self)
+        if 'pk' in self.kwargs:
+            return queryset
 
 class PostDetailView(DetailView):
     """Post Detail"""
@@ -58,16 +68,4 @@ class PostDetailView(DetailView):
             published__year=self.kwargs['year'],
             published__month=self.kwargs['month'],
             published__day=self.kwargs['day'],
-        )
-
-class TopicDetailView(DetailView):
-    """Topic Detail view"""
-    model = models.Post
-
-    def get_queryset(self):
-        queryset = super().get_queryset().self()
-
-        # Otherwise, filter on the published date
-        return queryset.filter(
-            name=self.kwargs['name'],
         )

@@ -1,14 +1,13 @@
-{# blog/templates/blog/topic_list.html #}
+<!-- {# blog/templates/blog/topic_list.html #} -->
 {% extends "blog/base.html" %}
 
 {% block page_title %}Topics{% endblock %}
 
 {% block main %}
 <h1>Topics</h1>
-
-<ul>
-  {% for topic in topics %}
-    <li><a href="{{ post.get_absolute_url }}">{{ topic.name}}</a></li>
-  {% endfor %}
-</ul>
+<article class="topic-preview">
+{% for topic in topics %}
+    	<li><a href="{{ topic.get_absolute_url }}">{{ topic.name }}</a></li>
+{% endfor %}
+</article>
 {% endblock %}

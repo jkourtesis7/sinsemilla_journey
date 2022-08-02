@@ -40,7 +40,7 @@
        <h3>Popular Topics</h3>
        <ul>
          {% for topic in topics_info %}
-           <li><a href="{{ topic.get_absolute_url }}">{{ topic.name }} ({{ topic.blog_posts.count }})</a></li>
+           <li><a href="{{ topic.get_absolute_url }}">{{ topic.name }} ({{ topic.blog_posts.published.count }})</a></li>
          {% endfor %}
        </ul>
        <p><a href="{% url "topic-list" %}">   View All Topics</a></p>

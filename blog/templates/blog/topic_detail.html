@@ -1,21 +1,22 @@
 {# blog/templates/blog/topic_detail.html #}
+
 {% extends "blog/base.html" %}
 
-{% block page_title %}Topic Detail{% endblock %}
-
+{% block page_title %}Topic{% endblock %}
 
 {% block main %}
-<h1>{{ topic.name }}</h1>
-<p>{{ topic.total_posts }} posts</P>
+<article id="topic-detail-article">
+  <h1> TOPICS </h1>
+  <h1>{{ topic.name }}</h1>
+  <h4><i> {{ topic.blog_posts.published.count }} posts </i></h4>
+  <p>
 
-{% for post in topic %}
-  <article class="post-preview">
-    <h2>{{ post.title }}</h2>
-    <time>{{ post.published }}</time>
-    <section class="teaser">
-      {{ post.content|truncatewords:20 }}
-    <p><a href="{{ post.get_absolute_url }}">Read more &rarr; </a></p>
-    </section>
-  </article>
-{% endfor %}
+  <section>
+  {% for post in topic.blog_posts.published %}
+  	{% include "blog/post_preview.html" %}
+  {% endfor %}
+  </section>
+  </p>
+
+</article>
 {% endblock %}

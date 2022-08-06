@@ -9,60 +9,74 @@
 </head>
 
 <body>
-  <!-- The header -->
-  <header id="site-header">
-     <h1>Sinsemilla Journey</h1>
-     <p>A Cannabis Cultivation Blog</p>
-     <img src="{% static "blog/logo.png" %}" alt="Logo">
-  </header>
+  <!--Displays messages here -->
+  {% if messages %}
+  <div class="django-messages">
+    {% for message in messages %}
+    <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
-  <!-- Top navigation -->
-  <nav id="top-nav">
-    <ul>
-      <li><a href="{% url "home" %}">Home</a></li>
-      <li><a href="{% url "about" %}">About</a></li>
-      <li><a href="{% url "post-list" %}">Posts</a></li>
-      <li><a href="{% url "topic-list" %}">Topics</a></li>
-      <li><a href="#">Contact</a></li>
-    </ul>
-  </nav>
+  {# Make a wrapper around the content #}
+  <div class="wrapper">
+    <!-- The header -->
+    <header id="site-header">
+       <h1>Sinsemilla Journey</h1>
+       <p>A Cannabis Cultivation Blog</p>
+       <img src="{% static "blog/logo.png" %}" alt="Logo">
+    </header>
 
-  <main id="main-content">
-    <div>
-      {% block main %}
-      <!-- Content for the main block will be rendered here -->
-      {% endblock %}
-    </div>
+    <!-- Top navigation -->
+    <nav id="top-nav">
+      <ul>
+        <li><a href="{% url "home" %}">Home</a></li>
+        <li><a href="{% url "about" %}">About</a></li>
+        <li><a href="{% url "post-list" %}">Posts</a></li>
+        <li><a href="{% url "topic-list" %}">Topics</a></li>
+        <li><a href="{% url "photo-contest" %}">Photo Contest</a></li>
+        <li><a href="{% url "contact" %}">Contact</a></li>
+      </ul>
+    </nav>
 
-    <aside id="sidebar">
+    <main id="main-content">
+      <div>
+        {% block main %}
+        <!-- Content for the main block will be rendered here -->
+        {% endblock %}
+      </div>
 
-     <section id="topic-list">
-       <h3>Popular Topics</h3>
-       <ul>
-         {% for topic in topics_info %}
-           <li><a href="{{ topic.get_absolute_url }}">{{ topic.name }} ({{ topic.blog_posts.published.count }})</a></li>
-         {% endfor %}
-       </ul>
-       <p><a href="{% url "topic-list" %}">   View All Topics</a></p>
-     </section>
+      <aside id="sidebar">
 
-     <section id="author-list">
-       <h3>Authors</h3>
-       <ul>
-         {% for author in authors %}
-         <li>{{ author.get_full_name }}</li>
-         {% endfor %}
-       </ul>
-     </section>
+       <section id="topic-list">
+         <h3>Popular Topics</h3>
+         <ul>
+           {% for topic in topics_info %}
+             <li><a href="{{ topic.get_absolute_url }}">{{ topic.name }} ({{ topic.blog_posts.published.count }})</a></li>
+           {% endfor %}
+         </ul>
+         <p><a href="{% url "topic-list" %}">   View All Topics</a></p>
+       </section>
 
-    </aside>
-  </main>
+       <section id="author-list">
+         <h3>Authors</h3>
+         <ul>
+           {% for author in authors %}
+           <li>{{ author.get_full_name }}</li>
+           {% endfor %}
+         </ul>
+       </section>
 
-  <!-- The footer -->
-  <footer id="site-footer">
-    <!-- Print copyright with the current year -->
-    Copyright &copy; {% now 'Y' %} –
-    <a href="{% url "terms-and-conditions" %}">Terms & conditions</a>
-  </footer>
+      </aside>
+    </main>
+
+    <!-- The footer -->
+    <footer id="site-footer">
+      <!-- Print copyright with the current year -->
+      Copyright &copy; {% now 'Y' %} –
+      <a href="{% url "terms-and-conditions" %}">Terms & conditions</a>
+    </footer>
+  {# close wrapper #}
+  </div>
 </body>
 </html>

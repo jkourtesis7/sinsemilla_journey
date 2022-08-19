@@ -78,5 +78,10 @@
     </footer>
   {# close wrapper #}
   </div>
+  {% block js %}
+    <script src="{% static "blog/csrf.js" %}"></script>
+    <script src="{% static "blog/comments.js" %}"></script>
+    <script src="{% static "blog/likehandler.js" %}"></script>
+  {% endblock %}
 </body>
 </html>

@@ -18,5 +18,27 @@
   </span>
 
   <section class="content">{{ post.content|safe|linebreaks }}</section>
+    {% load static %}
 </article>
+<section class="comments">
+  {% if comments %}
+    <h3>Latest comments</h3>
+    {% for comment in comments %}
+      <div class="comment">
+        <span class="by-line">By {{ comment.name }} | <time>{{ comment.created }}</time></span>
+        {{ comment.text|linebreaks }}
+        <a id='like{{ comment.pk }}' class='like' href="/api/comments/{{ comment.pk }}/like/">
+        <img class='likehandler' src="{% static "blog/thumbsup.png" %}" /> {{ comment.likes }}</a>
+        <a id='dislike{{ comment.pk }}' class='dislike' href="/api/comments/{{ comment.pk }}/dislike/">
+        <img class='likehandler' src="{% static "blog/thumbsdown.png" %}" /> {{ comment.dislikes }}</a>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <h3>Leave a comment</h3>
+  {# Alias the variable for the included template #}
+  {% with form=comment_form %}
+    {% include "blog/comment_form.html" %}
+  {% endwith %}
+</section>
 {% endblock %}

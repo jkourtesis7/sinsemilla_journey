@@ -191,3 +191,30 @@ form .errorlist {
   background: #bdfcb3;
   color: #355430;
 }
+
+/* blog/static/blog/base.css */
+
+/* Comments */
+.comments {
+  border-top: 1px solid #eee;
+  font-size: 0.9rem;
+  margin-top: 5rem;
+}
+
+.comments .by-line {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 900;
+}
+
+.comment {
+  margin-bottom: 30px;
+}
+
+.likehandler {
+  height: 15px;
+}
+
+.like, .dislike {
+  color: black;
+}

@@ -1,0 +1,12 @@
+{# blog/templates/blog/comment_form.html #}
+
+<form action="{% url "api:comment-list" %}" method="post" id="comment-form">
+  {% csrf_token %}
+  <table>
+    {{ form.as_table }}
+    <tr>
+      <td></td>
+      <td><button type="submit">Send</button></td>
+    </tr>
+  </table>
+</form>

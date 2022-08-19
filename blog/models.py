@@ -127,24 +127,27 @@ class Post(models.Model):
 
         return reverse('post-detail', kwargs=kwargs)
 
+class CommentQuerySet(models.QuerySet):
+    """QuerySet"""
+    def get_queryset(self):
+        """QuerySet"""
+        return self
+
 # Create your models here.
 class Comment(models.Model):
     """Blog Comments"""
-# Table fields
-    name = models.CharField(
-        max_length=50,
-        null=False,
-        )
-    email = models.CharField(
-        max_length=255,
-        null=False,
-        )
     post = models.ForeignKey(
         'Post',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name='comments',
         null=False,
     )
+# Table fields
+    name = models.CharField(
+        max_length=100,
+        null=False,
+        )
+    email = models.EmailField()
     text = models.TextField(
         max_length=1000,
         null=False,
@@ -154,6 +157,19 @@ class Comment(models.Model):
         )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    likes = models.PositiveIntegerField(
+        default=0
+    )
+    dislikes = models.PositiveIntegerField(
+        default=0
+    )
+
+    objects = CommentQuerySet.as_manager()
+
+
+# This line causes an error because to CommentQuerySet exists.
+# Will test without and confirm whether or not I have to build one.
+    #objects = CommentQuerySet.as_manager()
 
 # Sort Order
     class Meta:
@@ -161,7 +177,11 @@ class Comment(models.Model):
         ordering = ['-created']
 # Define self
     def __str__(self):
-        return f'{self.name} {self.updated}'
+    #Original
+        #return f'{self.name} {self.updated}'
+    # Suggested for Tutorial
+    # Will try with mine and see if and where errors come up.
+        return f'{self.name} re: {self.post}'
 
 class Contact(models.Model):
     """ Contact Model """
